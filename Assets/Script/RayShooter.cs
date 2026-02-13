@@ -1,15 +1,12 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class RayShooter : MonoBehaviour
 {
-    [SerializeField] private float interactDistance = 1.9f;
+    [SerializeField] private CoffeeMachine coffeeMachine;
+    [SerializeField] private float interactDistance = 2f;
     [SerializeField] private Transform holdPoint;
-    [SerializeField] private Transform coffeeMashinePoint;
     [SerializeField] private LayerMask pickupLayer;
-    [SerializeField] private LayerMask coffeeMashiteLayer;
-
-    private bool isInCoffeeMashine;
+    [SerializeField] private LayerMask machineLayer;
 
     private Camera _cam;
     private GameObject heldObject;
@@ -21,65 +18,89 @@ public class RayShooter : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(0))
         {
             if (heldObject == null)
             {
+                if (TryTakeCoffee())
+                    return;
+
                 TryPickUp();
             }
             else
             {
-                if (!TrySetCoffee() || isInCoffeeMashine)
-                {
+                if (!TrySetCoffee())
                     DropObject();
-                }
             }
         }
     }
 
-
-    void TryPickUp()
+    bool TryPickUp()
     {
-        Vector3 point = new Vector3(_cam.pixelWidth / 2, _cam.pixelHeight / 2);
-        Ray ray = _cam.ScreenPointToRay(point);
-
+        Ray ray = _cam.ViewportPointToRay(new Vector3(0.5f, 0.5f));
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, interactDistance, pickupLayer))
         {
+            if (coffeeMachine.IsBrewing)
+                return false;
+
             GameObject obj = hit.collider.gameObject;
 
             heldObject = obj;
 
             Rigidbody rb = obj.GetComponent<Rigidbody>();
-            if (rb != null)
-                rb.isKinematic = true;
+            if (rb != null) rb.isKinematic = true;
 
             obj.transform.SetParent(holdPoint);
             obj.transform.localPosition = Vector3.zero;
             obj.transform.localRotation = Quaternion.identity;
+
+            return true;
         }
+
+        return false;
     }
 
     bool TrySetCoffee()
     {
-        Vector3 point = new Vector3(_cam.pixelWidth / 2, _cam.pixelHeight / 2);
-        Ray ray = _cam.ScreenPointToRay(point);
-
+        Ray ray = _cam.ViewportPointToRay(new Vector3(0.5f, 0.5f));
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, interactDistance / 2, coffeeMashiteLayer))
+        if (Physics.Raycast(ray, out hit, interactDistance, machineLayer))
         {
-            heldObject.transform.SetParent(coffeeMashinePoint);
-            heldObject.transform.localPosition = Vector3.zero;
-            heldObject.transform.localRotation = Quaternion.identity;
+            if (coffeeMachine.TryPlaceCup(heldObject))
+            {
+                heldObject = null;
+                return true;
+            }
+        }
 
-            Rigidbody rb = heldObject.GetComponent<Rigidbody>();
-            if (rb != null)
-                rb.isKinematic = true;
+        return false;
+    }
 
-            heldObject = null;
-            return true;
+    bool TryTakeCoffee()
+    {
+        Ray ray = _cam.ViewportPointToRay(new Vector3(0.5f, 0.5f));
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, interactDistance, machineLayer))
+        {
+            GameObject cup = coffeeMachine.TryTakeCoffee();
+
+            if (cup != null)
+            {
+                heldObject = cup;
+
+                cup.transform.SetParent(holdPoint);
+                cup.transform.localPosition = Vector3.zero;
+                cup.transform.localRotation = Quaternion.identity;
+
+                Rigidbody rb = cup.GetComponent<Rigidbody>();
+                if (rb != null) rb.isKinematic = true;
+
+                return true;
+            }
         }
 
         return false;
@@ -88,8 +109,7 @@ public class RayShooter : MonoBehaviour
     void DropObject()
     {
         Rigidbody rb = heldObject.GetComponent<Rigidbody>();
-        if (rb != null)
-            rb.isKinematic = false;
+        if (rb != null) rb.isKinematic = false;
 
         heldObject.transform.SetParent(null);
         heldObject = null;
