@@ -1,7 +1,6 @@
 using System;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem.DualShock.LowLevel;
 
 public class MouseLook : MonoBehaviour
 {
