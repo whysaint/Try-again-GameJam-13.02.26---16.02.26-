@@ -1,0 +1,46 @@
+-# === UNITY CORE ===
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+MemoryCaptures/
+CrashReports/
+PerfReports/
+Helicpter Game_BurstDebugInformation_DoNotShip/
+
+# === IDE ===
+.vs/
+.utmp
+.vscode/
+.idea/
+*.csproj
+*.sln
+*.user
+*.suo
+*.DotSettings.user
+
+# === OS ===
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*~
+
+# === ARCHIVES & BUILDS ===
+*.ipa
+*.exe
+*.app
+*.unitypackage
+*.zip
+*.tar
+*.tgz
+*.gz
+
+# === GIT ===
+*.orig
+*.rej
+*.patch
+*.diff
