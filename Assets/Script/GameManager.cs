@@ -7,12 +7,16 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+
     public int coffeeCount = 0;
     public int coffeeGoal = 5;
 
     public bool lightOn = true;
+    public bool darknessIsDeadly = false;
+
 
     [SerializeField] private GameObject winUI;
+    [SerializeField] private Light mainLight;
 
     private void Awake()
     {
@@ -31,8 +35,6 @@ public class GameManager : MonoBehaviour
                 winUI.SetActive(true);
         }
     }
-    
-    [SerializeField] private Light mainLight;
 
     public void TurnLightOff()
     {
@@ -49,6 +51,30 @@ public class GameManager : MonoBehaviour
         if (mainLight != null)
             mainLight.enabled = true;
     }
+    
+    public void StartDarkness()
+    {
+        lightOn = false;
+        darknessIsDeadly = false;
+
+        if (mainLight != null)
+            mainLight.enabled = false;
+    }
+
+    public void EnableDeadlyDarkness()
+    {
+        darknessIsDeadly = true;
+    }
+
+    public void EndDarkness()
+    {
+        lightOn = true;
+        darknessIsDeadly = false;
+
+        if (mainLight != null)
+            mainLight.enabled = true;
+    }
+
 
     private IEnumerator GameOver()
     {

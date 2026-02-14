@@ -17,6 +17,7 @@ public class FPSInput : MonoBehaviour
     [SerializeField] private GameObject lastEnemy;
 
     private bool screamerTriggered = false;
+    private bool isGameOver = false;
 
     private CharacterController controller;
     private float currentSpeed;
@@ -34,19 +35,19 @@ public class FPSInput : MonoBehaviour
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
 
-        bool isMovingInput = Mathf.Abs(x) > 0.1f || Mathf.Abs(z) > 0.1f;
-
-        // Если свет выключен и игрок пытается двигаться
-        if (GameManager.Instance != null && !GameManager.Instance.lightOn && isMovingInput)
+        bool isTryingToMove = Mathf.Abs(x) > 0.1f || Mathf.Abs(z) > 0.1f;
+        
+        if (GameManager.Instance != null &&
+            GameManager.Instance.darknessIsDeadly &&
+            isTryingToMove)
         {
-            TriggerScreamer();
             StartCoroutine(GameOver());
             return;
         }
 
+
         HandleMovement(x, z);
     }
-
 
     
     void TriggerScreamer()
@@ -67,16 +68,14 @@ public class FPSInput : MonoBehaviour
     {
         bool isSprinting = Input.GetKey(KeyCode.LeftShift);
 
-        currentSpeed = isSprinting 
-            ? baseSpeed * sprintMultiplier 
+        currentSpeed = isSprinting
+            ? baseSpeed * sprintMultiplier
             : baseSpeed;
 
         Vector3 move = transform.right * x + transform.forward * z;
 
         if (controller.isGrounded)
-        {
             yVelocity = 0f;
-        }
 
         yVelocity += gravity * Time.deltaTime;
 
@@ -86,7 +85,6 @@ public class FPSInput : MonoBehaviour
         controller.Move(finalMove * Time.deltaTime);
     }
 
-    private bool isGameOver = false;
 
     private IEnumerator GameOver()
     {
