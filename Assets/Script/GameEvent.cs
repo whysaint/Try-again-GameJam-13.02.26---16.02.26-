@@ -2,15 +2,19 @@ using UnityEngine;
 
 public class GameEvent : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [SerializeField] private MonsterSpawner enemy;
+    [SerializeField] private float activateAfterSeconds = 10f;
 
-    // Update is called once per frame
-    void Update()
+    private bool activated;
+
+    private void Update()
     {
-        
+        if (activated) return;
+
+        if (Time.time >= activateAfterSeconds)
+        {
+            enemy.ActivateMonster();
+            activated = true;
+        }
     }
 }
