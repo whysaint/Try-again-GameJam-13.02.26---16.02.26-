@@ -7,9 +7,9 @@ public class CupPickUpTrigger : MonoBehaviour
     [SerializeField] private GameObject monster;
     [SerializeField] private float lightDelay = 4.5f;
     [SerializeField] private float destroyDelay = 5f;
-    [SerializeField] public AudioClip ligthOff;
-    [SerializeField] public AudioSource audioSource;
-    [SerializeField] public AudioSource LigthMain;
+    [SerializeField] public AudioClip ligthOffClipSound;
+    [SerializeField] public AudioSource audioSourceLigth;
+    [SerializeField] public AudioSource LigthMainSoundOff;
 
     private bool triggered;
 
@@ -28,30 +28,35 @@ public class CupPickUpTrigger : MonoBehaviour
     private IEnumerator HandleCupEvent(GameObject cup)
     {
         yield return new WaitForSeconds(lightDelay);
-
-        if (mainLight != null)
-            mainLight.enabled = false;
         
-        if (ligthOff != null && audioSource != null && LigthMain != null)
-        {
-            audioSource.PlayOneShot(ligthOff);
-            LigthMain.gameObject.SetActive(false);
-        }
-
-            
+        if (GameManager.Instance != null)
+            GameManager.Instance.TurnLightOff();
         
+        if (ligthOffClipSound != null && audioSourceLigth != null)
+            audioSourceLigth.PlayOneShot(ligthOffClipSound);
+
+        if (LigthMainSoundOff != null)
+            LigthMainSoundOff.volume = 0f;
+        
+        if (monster != null)
+            monster.SetActive(true);
+
         yield return new WaitForSeconds(destroyDelay - lightDelay);
 
         Destroy(cup);
-        
-        if (monster != null)
-            monster.SetActive(false);
-        
+
+        if (GameManager.Instance != null)
+            GameManager.Instance.AddCoffee();
+
         yield return new WaitForSeconds(2f);
         
-        if (mainLight != null)
-            mainLight.enabled = true;
-        
-        LigthMain.gameObject.SetActive(true);
+        if (GameManager.Instance != null)
+            GameManager.Instance.TurnLightOn();
+
+        if (LigthMainSoundOff != null)
+            LigthMainSoundOff.volume = 0.5f;
+
+        triggered = false;
     }
+
 }

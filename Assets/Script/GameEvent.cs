@@ -7,6 +7,12 @@ public class GameEvent : MonoBehaviour
 
     private bool activated;
 
+    void Awake()
+    {
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 60;
+    }
+
     private void Update()
     {
         if (activated) return;
